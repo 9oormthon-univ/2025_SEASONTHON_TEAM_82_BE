@@ -47,6 +47,18 @@ dependencies {
 
 	// HC
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+
+	// Properties
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+	// ModelMapper
+	implementation 'org.modelmapper:modelmapper:2.4.2'
+
+	// Validation
+	implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
 }
 
 tasks.named('test') {
