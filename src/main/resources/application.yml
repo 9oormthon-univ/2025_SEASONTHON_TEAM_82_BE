@@ -3,3 +3,11 @@ spring:
     name: app
   profiles:
     include: secret
+
+  # 페이지네이션
+  data:
+    web:
+      pageable:
+        default-page-size: 15   # 기본 15
+        max-page-size: 50       # 최대 50
+        one-indexed-parameters: false
