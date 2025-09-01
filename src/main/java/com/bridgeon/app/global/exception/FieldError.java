@@ -36,7 +36,7 @@ public class FieldError {
     public static List<FieldError> of(
             final BindingResult bindingResult
     ) {
-        if (bindingResult == null || bindingResult.hasFieldErrors()) {
+        if (bindingResult == null || !bindingResult.hasFieldErrors()) {
             return new ArrayList<>();
         }
 
