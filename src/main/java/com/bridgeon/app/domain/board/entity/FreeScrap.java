@@ -6,12 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "free_scrap",
+        name = "free_scraps",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uk_free_scrap_user_board",
@@ -38,13 +39,7 @@ public class FreeScrap {
     @JoinColumn(name = "free_board_id", nullable = false)
     private FreeBoard freeBoard; // 스크랩된 자유게시판 글
 
+    @CreatedDate
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt; // 생성일
-
-    @PrePersist // 자동으로 생성일 넣어줌
-    void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-    }
 }

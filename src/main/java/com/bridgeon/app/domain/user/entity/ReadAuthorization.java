@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -32,6 +33,7 @@ public class ReadAuthorization {
     @Column(name = "is_accepted", nullable = false)
     private Boolean isAccepted = false; // 승인 여부
 
+    @CreatedDate
     @Column(name = "requested_at", nullable = false)
     private LocalDateTime requestedAt; // 요청 일자
 

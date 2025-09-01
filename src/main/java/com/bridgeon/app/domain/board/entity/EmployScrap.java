@@ -3,13 +3,14 @@ package com.bridgeon.app.domain.board.entity;
 import com.bridgeon.app.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
 
 @Entity
 @Table(
-        name = "employ_scrap",
+        name = "employ_scraps",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uk_employ_scrap_user_board",
@@ -36,13 +37,7 @@ public class EmployScrap {
     @JoinColumn(name = "employ_board_id", nullable = false)
     private EmployBoard employBoard; // 스크랩된 구인게시판 글
 
+    @CreatedDate
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt; // 생성일
-
-    @PrePersist // 생성일 자동
-    void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-    }
 }

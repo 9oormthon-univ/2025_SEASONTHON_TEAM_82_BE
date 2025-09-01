@@ -4,6 +4,7 @@ import com.bridgeon.app.global.enums.attachment.MimeType;
 import com.bridgeon.app.global.enums.attachment.TargetType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Attachment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "attachments_id")
@@ -34,14 +36,9 @@ public class Attachment {
     private Long targetId; // 연결된 대상 PK 값
 
     @Column(name = "sort_order", nullable = false)
-    private Integer sortOrder;  // 정렬 순서(기본 0)
+    private Integer saveOrder;  // 저장 순서(기본 0)
 
+    @CreatedDate
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;  // 생성일
-
-    @PrePersist
-    void onCreate() {
-        if (createdAt == null) createdAt = LocalDateTime.now();
-        if (sortOrder == null) sortOrder = 0;
-    }
 }
