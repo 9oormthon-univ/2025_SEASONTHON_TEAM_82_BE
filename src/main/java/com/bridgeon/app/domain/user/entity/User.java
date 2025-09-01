@@ -52,6 +52,6 @@ public class User extends BaseEntity {
     @Column(name = "introduction", columnDefinition = "TEXT")
     private String introduction; // 자기소개
 
-    @Column(name = "deletedAt")
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt; // 탈퇴일
 }
