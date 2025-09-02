@@ -53,4 +53,23 @@ public class AuthController {
                 "로그인 성공"
         );
     }
+
+
+    @PostMapping("/logout")
+    public ResponseDto<?> kakaoLogout(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        boolean isHttps = request.isSecure() || "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto"));
+
+        String accessName = isHttps ? "__Host-access_token" : "access_token";
+        String refreshName = isHttps ? "__Host-refresh_token" : "refresh_token";
+        String sameSite = isHttps ? "None" : "Lax";
+        boolean secure = isHttps;
+
+        response.addHeader("Set-Cookie", CookieUtils.deleteCookie(accessName, secure, sameSite));
+        response.addHeader("Set-Cookie", CookieUtils.deleteCookie(refreshName, secure, sameSite));
+
+        return ResponseDto.success(org.springframework.http.HttpStatus.OK, "로그아웃 완료");
+    }
 }

@@ -17,11 +17,11 @@ public class CookieUtils {
     }
 
 
-    public static String deleteCookie(String name, boolean crossSite) {
+    public static String deleteCookie(String name, boolean secure, String sameSite) {
         return ResponseCookie.from(name, "")
                 .httpOnly(true)
-                .secure(true)
-                .sameSite(crossSite ? "None" : "Lax")
+                .secure(secure)
+                .sameSite(sameSite)
                 .path("/")
                 .maxAge(0)
                 .build()
