@@ -1,4 +1,4 @@
-package com.bridgeon.app.domain.board.repositroy;
+package com.bridgeon.app.domain.board.repository;
 
 import com.bridgeon.app.domain.board.entity.EmployScrap;
 import org.springframework.data.jpa.repository.JpaRepository;

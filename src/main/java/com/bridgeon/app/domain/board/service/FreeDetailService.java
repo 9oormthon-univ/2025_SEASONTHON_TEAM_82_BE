@@ -3,7 +3,7 @@ package com.bridgeon.app.domain.board.service;
 
 import com.bridgeon.app.domain.board.dto.response.FreeDetailResponseDto;
 import com.bridgeon.app.domain.board.entity.FreeBoard;
-import com.bridgeon.app.domain.board.repositroy.FreeBoardJpaRepository;
+import com.bridgeon.app.domain.board.repository.FreeBoardJpaRepository;
 import com.bridgeon.app.domain.board.usecase.GetFreeDetailUseCase;
 import com.bridgeon.app.global.exception.custom.BusinessException;
 import com.bridgeon.app.global.exception.error.FreeErrorCode;
