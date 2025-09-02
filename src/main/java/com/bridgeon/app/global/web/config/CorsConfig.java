@@ -30,6 +30,7 @@ public class CorsConfig {
         global.setAllowedHeaders(corsProperties.getAllowedHeaders());
         global.setAllowCredentials(corsProperties.isAllowCredentials());
         global.setMaxAge(corsProperties.getMaxAge());
+        global.setExposedHeaders(List.of("Set-Cookie"));
 
         CorsConfiguration swagger = new CorsConfiguration(global);
         if (!corsProperties.getAllowedOriginPatterns().isEmpty()) {
