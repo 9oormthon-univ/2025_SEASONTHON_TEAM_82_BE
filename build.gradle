@@ -39,6 +39,15 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	testImplementation 'org.springframework.security:spring-security-test'
 
+	// JWT
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	// OAuth2
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
 	// Web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
@@ -54,6 +63,9 @@ dependencies {
 
 	// Properties
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+	// ModelMapper
+	implementation 'org.modelmapper:modelmapper:2.4.2'
 
 	// ModelMapper
 	implementation 'org.modelmapper:modelmapper:2.4.2'
