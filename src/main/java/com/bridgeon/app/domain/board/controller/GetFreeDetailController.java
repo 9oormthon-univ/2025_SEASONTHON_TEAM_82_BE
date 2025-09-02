@@ -1,0 +1,29 @@
+package com.bridgeon.app.domain.board.controller;
+
+import com.bridgeon.app.domain.board.dto.response.FreeDetailResponseDto;
+import com.bridgeon.app.domain.board.usecase.GetFreeDetailUseCase;
+import com.bridgeon.app.global.dto.response.ResponseDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/free-boards")
+public class GetFreeDetailController {
+
+    private final GetFreeDetailUseCase getFreeDetailUseCase;
+
+    @GetMapping("/{freeBoardId}")
+    public ResponseDto<FreeDetailResponseDto> getDetail(@PathVariable Long freeBoardId) {
+        FreeDetailResponseDto result = getFreeDetailUseCase.getDetail(freeBoardId);
+        return new ResponseDto<>(
+                HttpStatus.OK.value(),
+                "자유게시판 상세 조회 성공",
+                result
+        );
+    }
+}
