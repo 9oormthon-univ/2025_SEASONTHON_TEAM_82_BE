@@ -30,11 +30,9 @@ public class GetEmployDetailController {
             @AuthenticationPrincipal User user,
             @PathVariable Long employBoardId
     ) {
-        if (user == null) {
-            throw new BusinessException(AuthErrorCode.UNAUTHORIZED);
-        }
+        Long userId = (user != null) ? user.getId() : null;
 
-        EmployPostItemResponseDto result = employDetailService.getDetail(employBoardId, user.getId());
+        EmployPostItemResponseDto result = employDetailService.getDetail(employBoardId, userId);
 
 
         return new ResponseDto<>(
