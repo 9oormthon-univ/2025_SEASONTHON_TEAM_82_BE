@@ -5,12 +5,12 @@ import com.bridgeon.app.domain.board.dto.response.EmployPostItemResponseDto;
 import com.bridgeon.app.domain.board.service.EmployPostService;
 import com.bridgeon.app.domain.user.entity.User;
 import com.bridgeon.app.global.dto.response.PageListResponseDto;
+
 import com.bridgeon.app.global.dto.response.ResponseDto;
 import com.bridgeon.app.global.enums.user.InterestField;
 import com.bridgeon.app.global.enums.user.Region;
-import com.bridgeon.app.global.exception.custom.BusinessException;
-import com.bridgeon.app.global.exception.error.EmployErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -30,23 +30,20 @@ public class GetEmployPostsController {
     private final EmployPostService employPostService;
 
     @GetMapping
-    public ResponseEntity<ResponseDto<Map<String, Object>>> getEmployPosts(
+    public ResponseDto<Map<String, Object>> getEmployPosts(
             @RequestParam(required = false) Region region,
             @RequestParam(required = false) InterestField employType,
             @RequestParam(required = false, name = "title") String employTitle,
-//            @AuthenticationPrincipal User user,
-            @RequestAttribute(name = "userId", required = false) Long userId,
+            @AuthenticationPrincipal User user,
             @PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        var pageResult = employPostService.getEmployPosts(
-            region, employType, employTitle, pageable, userId
+        Long userId = (user != null) ? user.getId() : null;
+        Page<EmployPostItemResponseDto> pageResult = employPostService.getEmployPosts(
+                region, employType, employTitle, pageable, userId
         );
 
-        //추후에 인증 구현되면 바꾸기
-//        var resultPage = employPostService.getEmployPosts(region, employType, title, pageable, user.getId());
         PageListResponseDto<EmployPostItemResponseDto> dto = PageListResponseDto.of(pageResult);
-
 
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("employPosts", dto.items());
@@ -57,11 +54,10 @@ public class GetEmployPostsController {
         data.put("hasNext", dto.hasNext());
         data.put("hasPrev", dto.hasPrev());
 
-        return ResponseEntity.ok(ResponseDto.success(
-                HttpStatus.OK,
+        return new ResponseDto<>(
+                HttpStatus.OK.value(),
                 "OK",
                 data
-            )
         );
     }
 }
