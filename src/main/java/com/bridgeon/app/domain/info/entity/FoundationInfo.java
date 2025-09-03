@@ -27,6 +27,9 @@ public class FoundationInfo {
     @Column(name = "info_subtitle", columnDefinition = "TEXT")
     private String infoSubtitle; // 부제목
 
+    @Column(name = "info_image_url", nullable = false, columnDefinition = "TEXT")
+    private String infoImageUrl; // 이미지 URL
+
     @Column(name = "info_start_date", nullable = false)
     private LocalDateTime infoStartDate; // 모집 시작 날짜
 
