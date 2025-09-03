@@ -35,4 +35,8 @@ public class FoundationInfo {
 
     @Column(name = "info_link", nullable = false, columnDefinition = "TEXT")
     private String infoLink; // 연결될 링크
+
+    @Column(name = "view", nullable = false)
+    @Builder.Default
+    private Integer view = 0;
 }
