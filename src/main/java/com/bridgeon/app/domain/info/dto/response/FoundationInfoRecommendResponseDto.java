@@ -8,9 +8,10 @@ public record FoundationInfoRecommendResponseDto(
         Long foundationInfoId,
         String title,
         String subtitle,
+        String infoImageUrl,
         LocalDateTime recruitStartAt,
         LocalDateTime recruitEndAt,
-        String linkUrl,
+        String infoLink,
         Integer view
 ) {
     public static FoundationInfoRecommendResponseDto from(FoundationInfo e) {
@@ -18,6 +19,7 @@ public record FoundationInfoRecommendResponseDto(
                 e.getId(),
                 e.getInfoTitle(),
                 e.getInfoSubtitle(),
+                e.getInfoImageUrl(),
                 e.getInfoStartDate(),
                 e.getInfoEndDate(),
                 e.getInfoLink(),
