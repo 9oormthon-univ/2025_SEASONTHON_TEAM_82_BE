@@ -23,7 +23,8 @@ public enum EmployErrorCode implements ErrorCode {
 
     // 404 리소스 없음
     EMPLOY_BOARD_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "E4041", "구인 게시글을 찾을 수 없습니다."),
-    APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "E4042", "지원 내역을 찾을 수 없습니다.");
+    APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "E4042", "지원 내역을 찾을 수 없습니다."),
+    EMPLOY_APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "E4043", "구인 신청 내역을 찾을 수 없습니다.");
 
     private final int httpStatus;
     private final String code;

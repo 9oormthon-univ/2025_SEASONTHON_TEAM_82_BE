@@ -15,13 +15,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class EmployApplicationServiceImpl implements EmployApplicationUseCase {
-
 
     private final EmployApplicationJpaRepository applicationRepository;
     private final EmployBoardJpaRepository boardRepository;
@@ -63,5 +63,84 @@ public class EmployApplicationServiceImpl implements EmployApplicationUseCase {
         saved = applicationRepository.save(saved);
 
         return saved.getId();
+    }
+
+    // 승인하기
+    @Override
+    @Transactional
+    public void approve(Long employBoardId, Long applicationId, Long ownerId) {
+
+        // 신청 존재 확인
+        EmployApplication app = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new BusinessException(EmployErrorCode.APPLICATION_NOT_FOUND));
+
+        // 글 작성자인지 확인
+        validateOwnership(app, employBoardId, ownerId);
+
+        // 승인으로 업데이트
+        int updated = applicationRepository.updateStatus(
+                applicationId,
+                ApplyStatus.APPROVED,
+                LocalDateTime.now()
+        );
+        // 업데이트 된 행이 없을 때 -> 예외 던짐
+        if (updated == 0) throw new BusinessException(EmployErrorCode.APPLICATION_NOT_FOUND);
+    }
+
+    // 거절하기
+    @Override
+    @Transactional
+    public void reject(Long employBoardId, Long applicationId, Long ownerId) {
+
+        // 신청 존재 확인
+        EmployApplication app = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new BusinessException(EmployErrorCode.APPLICATION_NOT_FOUND));
+
+        // 글 작성자인지 확인
+        validateOwnership(app, employBoardId, ownerId);
+
+        // 거절으로 업데이트
+        int updated = applicationRepository.updateStatus(
+                applicationId,
+                ApplyStatus.REJECTED,
+                LocalDateTime.now()
+        );
+        //업데이트 된 행이 없을 때 -> 예외 던짐
+        if (updated == 0) throw new BusinessException(EmployErrorCode.APPLICATION_NOT_FOUND);
+    }
+
+    // 지원 취소
+    @Override
+    @Transactional
+    public void cancel(Long employBoardId, Long applicationId, Long ownerId) {
+        // 신청 존재 확인
+        EmployApplication app = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new BusinessException(EmployErrorCode.APPLICATION_NOT_FOUND));
+
+        // 경로 검증
+        if (!app.getEmployBoard().getId().equals(employBoardId)) {
+            throw new BusinessException(EmployErrorCode.APPLICATION_NOT_FOUND);
+        }
+
+        //신청자 본인만 취소 가능
+        if (!app.getApplicant().getId().equals(applicationId)) {
+            throw new BusinessException(AuthErrorCode.ACCESS_DENIED);
+        }
+
+        //softdelete 구현
+        applicationRepository.softDelete(applicationId, LocalDateTime.now());
+    }
+
+
+    private void validateOwnership(EmployApplication app, Long employBoardId, Long ownerId) {
+        // 신청이 해당 게시글에 속해 있는지 확인
+        if (!app.getEmployBoard().getId().equals(employBoardId)) {
+            throw new BusinessException(EmployErrorCode.EMPLOY_APPLICATION_NOT_FOUND);
+        }
+
+        // 게시글 작성자(ownerId)와 요청한 사용자(ownerId)가 일치하는지 확인
+        if (!app.getEmployBoard().getUser().getId().equals(ownerId)) {
+            throw new BusinessException(AuthErrorCode.ACCESS_DENIED);
+        }
     }
 }
