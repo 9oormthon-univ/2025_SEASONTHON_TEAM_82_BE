@@ -18,7 +18,7 @@ public enum AuthErrorCode implements ErrorCode {
     PERMISSION_CONSENT(HttpStatus.BAD_REQUEST.value(), "A4004", "카카오 계정 권한 동의 필요"),
 
     // 401
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(),"A4011", "인증되지 않은 사용자압니다."),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(),"A4011", "인증되지 않은 사용자입니다."),
 
     // 403
     ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "A4031", "접근 권한이 없습니다."),

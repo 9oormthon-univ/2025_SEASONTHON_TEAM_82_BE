@@ -61,7 +61,7 @@ public class AuthTest extends BaseTest {
 
     @Test
     void 기존_사용자_토큰발급() {
-        Long userId = 1L; // id 수정해서 사용
+        Long userId = 13L; // id 수정해서 사용
 
         User existing = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(AuthErrorCode.USER_NOT_FOUND));

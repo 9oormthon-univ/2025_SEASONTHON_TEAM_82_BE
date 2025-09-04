@@ -1,6 +1,9 @@
 package com.bridgeon.app.global.jwt.utils;
 
+import com.bridgeon.app.domain.user.repository.UserRepository;
 import com.bridgeon.app.global.dto.auth.AuthInfo;
+import com.bridgeon.app.global.exception.custom.BusinessException;
+import com.bridgeon.app.global.exception.error.AuthErrorCode;
 import com.bridgeon.app.global.jwt.usecase.TokenGenerateUseCase;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
@@ -21,15 +24,17 @@ public class JwtUtils {
     private final SecretKey secretKey;
     public final TokenGenerateUseCase accessTokenGenerateService;
     public final TokenGenerateUseCase refreshTokenGenerateService;
+    private final UserRepository userRepository;
 
     public JwtUtils(
             SecretKey secretKey,
             @Qualifier("accessTokenGenerateService") TokenGenerateUseCase accessTokenGenerateService,
-            @Qualifier("refreshTokenGenerateService") TokenGenerateUseCase refreshTokenGenerateService
-    ) {
+            @Qualifier("refreshTokenGenerateService") TokenGenerateUseCase refreshTokenGenerateService,
+            UserRepository userRepository) {
         this.secretKey = secretKey;
         this.accessTokenGenerateService = accessTokenGenerateService;
         this.refreshTokenGenerateService = refreshTokenGenerateService;
+        this.userRepository = userRepository;
     }
 
 
@@ -84,16 +89,15 @@ public class JwtUtils {
         Claims claims = getClaimsFromToken(accessToken);
         String role = claims.get("role", String.class);
 
-        User principal = new User(
-                claims.getSubject(),
-                "",
-                Collections.singleton(new SimpleGrantedAuthority(role))
-        );
+        Long userId = Long.parseLong(claims.getSubject());
+        com.bridgeon.app.domain.user.entity.User entity =
+                userRepository.findById(userId)
+                        .orElseThrow(() -> new BusinessException(AuthErrorCode.UNAUTHORIZED));
 
         return new UsernamePasswordAuthenticationToken(
-                principal,
+                entity, // 이제 엔티티가 principal
                 accessToken,
-                principal.getAuthorities()
+                Collections.singleton(new SimpleGrantedAuthority(role))
         );
     }
 }
