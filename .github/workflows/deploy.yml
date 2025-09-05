@@ -1,0 +1,59 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Add SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+      - name: Deploy to EC2
+        run: |
+          echo "[1/6] EC2 접속 시작..."
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e
+            echo "✅ EC2 접속 성공"
+
+            cd /opt/bridgeon
+
+            echo "[2/6] 애플리케이션 설정 파일 업데이트 중..."
+            echo "${{ secrets.APPLICATION_PROD_YML }}" > /opt/bridgeon/config/application-prod.yml
+            echo "${{ secrets.APPLICATION_SECRET_YML }}" > /opt/bridgeon/config/application-secret.yml
+            echo "✅ 설정 파일 업데이트 완료"
+
+            echo "[3/6] 최신 Docker 이미지 Pull..."
+            aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 590184104064.dkr.ecr.us-west-2.amazonaws.com
+            docker compose pull
+            echo "✅ 최신 이미지 Pull 완료"
+
+            echo "[4/6] 기존 컨테이너 종료..."
+            docker compose down
+            echo "✅ 기존 컨테이너 종료 완료"
+
+            echo "[5/6] 새 컨테이너 실행..."
+            docker compose up -d --remove-orphans
+            echo "✅ 새 컨테이너 실행 완료"
+
+            echo "[6/6] 현재 실행 중인 컨테이너 목록:"
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+            echo "🎉 배포 성공!"
+          EOF
