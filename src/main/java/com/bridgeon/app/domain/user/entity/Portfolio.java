@@ -27,6 +27,7 @@ public class Portfolio extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "visibility", nullable = false)
     private Visibility visibility; // 공개 여부
 
