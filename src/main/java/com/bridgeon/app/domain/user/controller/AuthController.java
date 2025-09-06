@@ -1,5 +1,6 @@
 package com.bridgeon.app.domain.user.controller;
 
+import com.bridgeon.app.domain.user.dto.response.LoginResponseDto;
 import com.bridgeon.app.global.dto.auth.AuthInfo;
 import com.bridgeon.app.global.dto.response.ResponseDto;
 import com.bridgeon.app.global.jwt.properties.JwtProperties;
@@ -22,7 +23,7 @@ public class AuthController {
     private final JwtProperties jwtProperties;
 
     @GetMapping("/login")
-    public ResponseDto<?> kakaoSignIn(
+    public ResponseDto<LoginResponseDto> kakaoSignIn(
             @RequestParam String code,
             HttpServletResponse response,
             HttpServletRequest request
@@ -50,7 +51,8 @@ public class AuthController {
 
         return ResponseDto.success(
                 HttpStatus.OK,
-                "로그인 성공"
+                "로그인 성공",
+                new LoginResponseDto(accessToken, refreshToken)
         );
     }
 
