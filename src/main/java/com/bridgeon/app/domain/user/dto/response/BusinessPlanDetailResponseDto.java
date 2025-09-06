@@ -14,11 +14,12 @@ public record BusinessPlanDetailResponseDto(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public static BusinessPlanListResponseDto of(BusinessPlan bp) {
-        return new BusinessPlanListResponseDto(
+    public static BusinessPlanDetailResponseDto of(BusinessPlan bp) {
+        return new BusinessPlanDetailResponseDto(
                 bp.getId(),
                 bp.getTitle(),
                 bp.getBusinessType(),
+                bp.getContent(),
                 bp.getCreatedAt(),
                 bp.getUpdatedAt()
         );

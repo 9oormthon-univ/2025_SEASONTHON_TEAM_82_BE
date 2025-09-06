@@ -19,9 +19,11 @@ public record EmployPostItemResponseDto(
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         LocalDateTime deletedAt,
-        boolean isScraped
+        boolean authorized,
+        boolean isScraped,
+        Long businessPlanId
 ) {
-    public static EmployPostItemResponseDto of(EmployBoard e, boolean isScraped) {
+    public static EmployPostItemResponseDto of(EmployBoard e,boolean authorized, boolean isScraped) {
         return new EmployPostItemResponseDto(
                 e.getId(),
                 e.getUser() != null ? e.getUser().getId() : null, // 인증 구현되면 수정 예정
@@ -34,7 +36,9 @@ public record EmployPostItemResponseDto(
                 e.getCreatedAt(),
                 e.getUpdatedAt(),
                 e.getDeletedAt(),
-                isScraped
+                authorized,
+                isScraped,
+                (e.getBusinessPlan() != null ? e.getBusinessPlan().getId() : null)
         );
     }
 }
