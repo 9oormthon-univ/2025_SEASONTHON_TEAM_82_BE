@@ -51,7 +51,7 @@ public class AuthController {
         response.addHeader("Set-Cookie", c1);
         response.addHeader("Set-Cookie", c2);
 
-        String frontendBaseUrl = "http:localhost:5173";
+        String frontendBaseUrl = "http://localhost:5173";
         String target = frontendBaseUrl + (next != null && next.startsWith("/") ? next : "/onboarding");
 
         return ResponseEntity.status(302)
