@@ -16,6 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
@@ -25,10 +28,10 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final JwtProperties jwtProperties;
 
-    @GetMapping("/login")
+    @GetMapping("/kakao/login")
     public ResponseEntity<Void> kakaoSignIn(
             @RequestParam String code,
-            @RequestParam(required = false) String next,
+            @RequestParam(required = false) String state,
             HttpServletResponse response,
             HttpServletRequest request
     ) {
@@ -53,16 +56,20 @@ public class AuthController {
         response.addHeader("Set-Cookie", c1);
         response.addHeader("Set-Cookie", c2);
 
-        String frontendBaseUrl = "http://localhost:5173";
-        String target = frontendBaseUrl + (next != null && next.startsWith("/") ? next : "/onboarding");
+        String next = "/onboarding";
+        if (state != null && state.startsWith("next=")) {
+            String cand = state.substring("next=".length());
+            if (cand.startsWith("/")) next = cand;
+        }
+
+        // 4) 프론트(로컬)로 리다이렉트하면서 토큰을 쿼리로 넘김 (개발용 간단 방식)
+        String target = "http://localhost:5173" + next
+                + "?at=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8)
+                + "&rt=" + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
 
         return ResponseEntity.status(302)
                 .header(HttpHeaders.LOCATION, target)
                 .build();
-//        return ResponseDto.success(
-//                HttpStatus.OK,
-//                "로그인 성공"
-//        );
     }
 
     @GetMapping("/token")
