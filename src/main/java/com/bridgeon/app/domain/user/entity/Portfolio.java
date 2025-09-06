@@ -28,8 +28,8 @@ public class Portfolio extends BaseEntity {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "visibility", nullable = false)
-    private Visibility visibility; // 공개 여부
+    @Column(name = "visibility", nullable = false, length = 16)
+    private Visibility visibility;
 
     @Column(name = "title", nullable = false)
     private String title; // 프로젝트 제목
