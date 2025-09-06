@@ -76,6 +76,6 @@ public class KakaoOAuthClient {
             return body;
         }
 
-        throw new BusinessException(AuthErrorCode.DENIED_KAKAO_USER);
+        throw new BusinessException(AuthErrorCode.DENIED_KAKAO_TOKEN);
     }
 }

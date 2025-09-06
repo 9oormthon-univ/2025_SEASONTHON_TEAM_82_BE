@@ -27,8 +27,7 @@ public enum AuthErrorCode implements ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "A4041", "사용자를 찾을 수 없습니다."),
 
     // 503
-    DENIED_KAKAO_TOKEN(HttpStatus.SERVICE_UNAVAILABLE.value(), "A5031", "카카오 토큰 발급 실패"),
-    DENIED_KAKAO_USER(HttpStatus.SERVICE_UNAVAILABLE.value(), "A5032", "카카오 사용자 조회 실패");
+    DENIED_KAKAO_TOKEN(HttpStatus.SERVICE_UNAVAILABLE.value(), "A5031", "카카오 토큰 발급 실패");
 
     private final int httpStatus;
     private final String code;
