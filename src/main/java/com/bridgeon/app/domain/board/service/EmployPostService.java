@@ -72,10 +72,13 @@ public class EmployPostService {
         Page<EmployBoard> boards = employBoardJpaRepository.findAll(example, ensured);
 
         // DTO 매핑
-        return boards.map(e -> EmployPostItemResponseDto.of(
-                e,
-                currentUserId != null &&
-                        employScrapJpaRepository.existsByUserIdAndEmployBoardId(currentUserId, e.getId())
-        ));
+        return boards.map(e -> {
+            boolean isScraped = currentUserId != null &&
+                    employScrapJpaRepository.existsByUserIdAndEmployBoardId(currentUserId, e.getId());
+
+            boolean authorized = false; // 목록 조회에서는 열람 승인 여부 의미 없음(상세에서 체크)
+
+            return EmployPostItemResponseDto.of(e, authorized, isScraped);
+        });
     }
 }
