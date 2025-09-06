@@ -91,7 +91,7 @@ public class TrendController {
         LocalDate target = resolveDate(date);
         Page<NewsArticleItemResponseDto> page = articleListService.list(category, target, pageable);
         return new ResponseDto<>(
-                HttpStatus.CREATED.OK.value(),
+                HttpStatus.OK.value(),
                 "카테고리 기사 목록 불러오기 성공",
                 page
         );
@@ -102,7 +102,7 @@ public class TrendController {
      *  - 기본값: 어제 날짜(매일 00시 적재를 가정)
      * ========================= */
     @PostMapping("/crawl/{category}")
-    public ResponseEntity<Map<String, Object>> crawlOne(
+    public ResponseDto<Map<String, Object>> crawlOne(
             @PathVariable InterestField category,
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
@@ -117,7 +117,11 @@ public class TrendController {
         body.put("category", category.name());
         body.put("inserted", r.inserted());
         body.put("skipped", r.skipped());
-        return ResponseEntity.ok(body);
+        return new ResponseDto<>(
+                HttpStatus.OK.value(),
+                "카테고리 기사 목록 불러오기 성공",
+                body
+        );
     }
 
     /* =========================
@@ -125,7 +129,7 @@ public class TrendController {
      *  - 기본값: 어제 날짜
      * ========================= */
     @PostMapping("/crawl/all")
-    public ResponseEntity<Map<String, Object>> crawlAll(
+    public ResponseDto<Map<String, Object>> crawlAll(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
@@ -148,6 +152,10 @@ public class TrendController {
         body.put("inserted", inserted);
         body.put("skipped", skipped);
 
-        return ResponseEntity.ok(body);
+        return new ResponseDto<>(
+                HttpStatus.OK.value(),
+                "카테고리 기사 목록 불러오기 성공",
+                body
+        );
     }
 }
