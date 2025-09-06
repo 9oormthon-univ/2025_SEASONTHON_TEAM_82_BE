@@ -1,5 +1,6 @@
 package com.bridgeon.app.domain.user.controller;
 
+import com.bridgeon.app.domain.user.dto.response.LoginResponseDto;
 import com.bridgeon.app.global.dto.auth.AuthInfo;
 import com.bridgeon.app.global.dto.response.ResponseDto;
 import com.bridgeon.app.global.jwt.properties.JwtProperties;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -61,6 +63,22 @@ public class AuthController {
 //                HttpStatus.OK,
 //                "로그인 성공"
 //        );
+    }
+
+    @GetMapping("/token")
+    public ResponseDto<LoginResponseDto> readTokenFromCookie(
+            @CookieValue(name="__Host-access_token",  required = false) String hostAccess,
+            @CookieValue(name="access_token",        required = false) String access,
+            @CookieValue(name="__Host-refresh_token",required = false) String hostRefresh,
+            @CookieValue(name="refresh_token",       required = false) String refresh
+    ) {
+        String at = StringUtils.hasText(hostAccess)  ? hostAccess  : access;
+        String rt = StringUtils.hasText(hostRefresh) ? hostRefresh : refresh;
+        return ResponseDto.success(
+                HttpStatus.OK,
+                "토큰 조회",
+                new LoginResponseDto(at, rt)
+        );
     }
 
 
