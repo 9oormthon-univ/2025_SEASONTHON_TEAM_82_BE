@@ -43,9 +43,11 @@ public class User extends BaseEntity {
     @Column(name = "nickname", nullable = false)
     private String nickname; // 닉네임
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "region")
     private Region region; // 지역
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "interest_field")
     private InterestField interestField; // 창업 관심 분야
 
