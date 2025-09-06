@@ -7,12 +7,14 @@ import com.bridgeon.app.domain.news.service.ArticleListService;
 import com.bridgeon.app.domain.news.service.CategorySummaryService;
 import com.bridgeon.app.domain.news.service.CrawlService;
 import com.bridgeon.app.domain.news.service.HomeReportService;
+import com.bridgeon.app.global.dto.response.ResponseDto;
 import com.bridgeon.app.global.enums.user.InterestField;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,34 +47,42 @@ public class TrendController {
      * 1) 홈 리포트
      * ========================= */
     @GetMapping("/home")
-    public ResponseEntity<HomeReportResponseDto> getHomeReport(
+    public ResponseDto<HomeReportResponseDto> getHomeReport(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         LocalDate target = resolveDate(date);
         HomeReportResponseDto dto = homeReportService.get(target);
-        return ResponseEntity.ok(dto);
+        return new ResponseDto<>(
+                HttpStatus.OK.value(),
+                "홈 리포트 불러오기 성공",
+                dto
+        );
     }
 
     /* =========================
      * 2) 카테고리 요약
      * ========================= */
     @GetMapping("/categories/{category}/summary")
-    public ResponseEntity<CategorySummaryResponseDto> getCategorySummary(
+    public ResponseDto<CategorySummaryResponseDto> getCategorySummary(
             @PathVariable InterestField category,
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         LocalDate target = resolveDate(date);
         CategorySummaryResponseDto dto = categorySummaryService.get(category, target);
-        return ResponseEntity.ok(dto);
+        return new ResponseDto<>(
+                HttpStatus.OK.value(),
+                "카테고리 요약 정보 불러오기 성공",
+                dto
+        );
     }
 
     /* =========================
      * 3) 카테고리 기사 목록 (페이징)
      * ========================= */
     @GetMapping("/categories/{category}/articles")
-    public ResponseEntity<Page<NewsArticleItemResponseDto>> getArticles(
+    public ResponseDto<Page<NewsArticleItemResponseDto>> getArticles(
             @PathVariable InterestField category,
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
@@ -80,7 +90,11 @@ public class TrendController {
     ) {
         LocalDate target = resolveDate(date);
         Page<NewsArticleItemResponseDto> page = articleListService.list(category, target, pageable);
-        return ResponseEntity.ok(page);
+        return new ResponseDto<>(
+                HttpStatus.CREATED.OK.value(),
+                "카테고리 기사 목록 불러오기 성공",
+                page
+        );
     }
 
     /* =========================
