@@ -2,6 +2,7 @@ package com.bridgeon.app.global.jwt.utils;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,16 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(7);
+        }
+
+        if (req.getCookies() != null) {
+            for (Cookie c : req.getCookies()) {
+                String name = c.getName();
+                if ("access_token".equals(name) || "__Host-access_token".equals(name)) {
+                    String v = c.getValue();
+                    if (StringUtils.hasText(v)) return v;
+                }
+            }
         }
 
         return null;
