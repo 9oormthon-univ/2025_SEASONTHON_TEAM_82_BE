@@ -1,5 +1,6 @@
 package com.bridgeon.app.domain.board.entity;
 
+import com.bridgeon.app.domain.user.entity.BusinessPlan;
 import com.bridgeon.app.domain.user.entity.User;
 import com.bridgeon.app.global.entity.BaseEntity;
 import com.bridgeon.app.global.enums.user.InterestField;
@@ -51,4 +52,8 @@ public class EmployBoard extends BaseEntity {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt; // 구인게시판 글 삭제일
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "business_plan_id", nullable = false)
+    private BusinessPlan businessPlan;
 }
