@@ -1,11 +1,13 @@
 package com.bridgeon.app.domain.board.dto.response;
 
+import com.bridgeon.app.domain.attachment.dto.response.AttachmentResponseDto;
 import com.bridgeon.app.domain.board.entity.EmployBoard;
 import com.bridgeon.app.domain.user.entity.User;
 import com.bridgeon.app.global.enums.user.InterestField;
 import com.bridgeon.app.global.enums.user.Region;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record EmployPostItemResponseDto(
         Long employBoardId,
@@ -21,9 +23,10 @@ public record EmployPostItemResponseDto(
         LocalDateTime deletedAt,
         boolean authorized,
         boolean isScraped,
-        Long businessPlanId
+        Long businessPlanId,
+        List<AttachmentResponseDto> attachments
 ) {
-    public static EmployPostItemResponseDto of(EmployBoard e,boolean authorized, boolean isScraped) {
+    public static EmployPostItemResponseDto of(EmployBoard e,boolean authorized, boolean isScraped,List<AttachmentResponseDto> attachments) {
         return new EmployPostItemResponseDto(
                 e.getId(),
                 e.getUser() != null ? e.getUser().getId() : null, // 인증 구현되면 수정 예정
@@ -38,7 +41,13 @@ public record EmployPostItemResponseDto(
                 e.getDeletedAt(),
                 authorized,
                 isScraped,
-                (e.getBusinessPlan() != null ? e.getBusinessPlan().getId() : null)
+                (e.getBusinessPlan() != null ? e.getBusinessPlan().getId() : null),
+                attachments
         );
+    }
+    public static EmployPostItemResponseDto of(
+            EmployBoard e, boolean authorized, boolean isScraped
+    ) {
+        return of(e, authorized, isScraped, List.of());
     }
 }

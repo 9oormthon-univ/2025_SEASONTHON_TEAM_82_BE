@@ -1,5 +1,7 @@
 package com.bridgeon.app.domain.user.service;
 
+import com.bridgeon.app.domain.attachment.entity.Attachment;
+import com.bridgeon.app.domain.attachment.repository.AttachmentJpaRepository;
 import com.bridgeon.app.domain.user.dto.response.ApplicantDetailResponseDto;
 import com.bridgeon.app.domain.user.dto.response.ApplicantProfileResponseDto;
 import com.bridgeon.app.domain.user.dto.response.PortfolioDetailItemResponseDto;
@@ -8,6 +10,7 @@ import com.bridgeon.app.domain.user.entity.User;
 import com.bridgeon.app.domain.user.repository.PortfolioJpaRepository;
 import com.bridgeon.app.domain.user.repository.UserRepository;
 import com.bridgeon.app.domain.user.usecase.GetApplicantDetailUseCase;
+import com.bridgeon.app.global.enums.attachment.TargetType;
 import com.bridgeon.app.global.enums.portfolio.Visibility;
 import com.bridgeon.app.global.exception.custom.BusinessException;
 import com.bridgeon.app.global.exception.error.AuthErrorCode;
@@ -24,6 +27,7 @@ public class ApplicantDetailService implements GetApplicantDetailUseCase {
 
     private final UserRepository userRepository;
     private final PortfolioJpaRepository portfolioJpaRepository;
+    private final AttachmentJpaRepository attachmentJpaRepository;
 
     @Override
     public ApplicantDetailResponseDto excute(Long applicantUserId, Long currentUserId) {
@@ -42,7 +46,13 @@ public class ApplicantDetailService implements GetApplicantDetailUseCase {
                 .map(PortfolioDetailItemResponseDto::of)
                 .toList();
 
-        ApplicantProfileResponseDto applicantProfileResponseDto = ApplicantProfileResponseDto.of(applicant);
+        String profileUrl = attachmentJpaRepository
+                .findFirstByTargetTypeAndTargetIdOrderBySortOrderAsc(TargetType.USER, applicantUserId)
+                .map(Attachment::getFileUrl)
+                .orElse(null);
+
+        // ApplicantProfileResponseDto에 프로필 이미지 포함
+        ApplicantProfileResponseDto applicantProfileResponseDto = ApplicantProfileResponseDto.of(applicant, profileUrl);
 
         return new ApplicantDetailResponseDto(applicantProfileResponseDto, portfolioDto);
 

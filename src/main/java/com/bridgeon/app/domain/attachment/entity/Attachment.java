@@ -36,7 +36,7 @@ public class Attachment {
     private Long targetId; // 연결된 대상 PK 값
 
     @Column(name = "sort_order", nullable = false)
-    private Integer saveOrder;  // 저장 순서(기본 0)
+    private Integer sortOrder = 0;  // 저장 순서(기본 0)
 
     @CreatedDate
     @Column(name = "created_at", nullable = false)
