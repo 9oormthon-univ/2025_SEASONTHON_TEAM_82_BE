@@ -117,9 +117,9 @@ public class TrendController {
         body.put("category", category.name());
         body.put("inserted", r.inserted());
         body.put("skipped", r.skipped());
-        return new ResponseDto<>(
-                HttpStatus.OK.value(),
-                "카테고리 기사 목록 불러오기 성공",
+        return new  ResponseDto<>(
+                HttpStatus.CREATED.value(),
+                "크롤링이 완료되었습니다.",
                 body
         );
     }
@@ -153,9 +153,10 @@ public class TrendController {
         body.put("skipped", skipped);
 
         return new ResponseDto<>(
-                HttpStatus.OK.value(),
-                "카테고리 기사 목록 불러오기 성공",
-                body
+                        HttpStatus.CREATED.value(),
+                        "전체 카테고리 크롤링이 완료되었습니다.",
+                        body
+
         );
     }
 }
