@@ -3,9 +3,7 @@ version: "3.8"
 services:
   app:
     image: 590184104064.dkr.ecr.us-west-2.amazonaws.com/bridgeon-server:${IMAGE_TAG}
-    container_name: bridgeon-server
-    env_file:
-      - /opt/bridgeon/config/.env
+    container_name: bridgeon-app
     ports:
       - "80:8080"
     environment:
