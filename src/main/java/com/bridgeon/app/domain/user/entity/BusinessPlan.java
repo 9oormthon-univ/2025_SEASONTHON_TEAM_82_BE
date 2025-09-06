@@ -2,6 +2,7 @@ package com.bridgeon.app.domain.user.entity;
 
 import com.bridgeon.app.global.dto.json.businessplan.Content;
 import com.bridgeon.app.global.entity.BaseEntity;
+import com.bridgeon.app.global.enums.user.InterestField;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,10 @@ public class BusinessPlan extends BaseEntity {
 
     @Column(name = "title", nullable = false)
     private String title; // 사업계획서 제목
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "business_type", nullable = false)
+    private InterestField businessType; // 사업 분야
 
     @Type(JsonType.class)
     @Column(name = "content", nullable = false, columnDefinition = "json")

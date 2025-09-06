@@ -1,6 +1,7 @@
 package com.bridgeon.app.domain.board.repository;
 
 import com.bridgeon.app.domain.board.entity.EmployApplication;
+import com.bridgeon.app.domain.user.entity.User;
 import com.bridgeon.app.global.enums.board.ApplyStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,4 +51,10 @@ public interface EmployApplicationJpaRepository extends JpaRepository<EmployAppl
            """)
     int softDelete(@Param("applicationId") Long applicationId,
                    @Param("deletedAt") LocalDateTime deletedAt);
+
+    boolean existsByEmployBoard_BusinessPlan_IdAndApplicantAndApplyStatusAndDeletedAtIsNull(
+            Long businessPlanId,
+            User user,
+            ApplyStatus status
+    );
 }
