@@ -2,8 +2,7 @@ name: Deploy to EC2
 
 on:
   push:
-    branches:
-      - release
+    branches: [ release ]
 
 jobs:
   build_and_push:
@@ -14,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set image tag
+      - name: Set image tag (commit SHA)
         id: meta
         run: echo "tag=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
@@ -30,14 +29,13 @@ jobs:
           aws ecr get-login-password --region us-west-2 \
             | docker login --username AWS --password-stdin 590184104064.dkr.ecr.us-west-2.amazonaws.com
 
-      - name: Build & push image
+      - name: Build & Push image
         run: |
-          # build & push step
           IMAGE=590184104064.dkr.ecr.us-west-2.amazonaws.com/bridgeon-server
           TAG=${{ steps.meta.outputs.tag }}
           docker build -t $IMAGE:$TAG .
-          docker push $IMAGE:$TAG
-          # 선택: latest도 함께 밀고 싶으면 아래 두 줄 추가
+          docker push  $IMAGE:$TAG
+          # 필요하면 latest도 함께 push
           # docker tag  $IMAGE:$TAG $IMAGE:latest
           # docker push $IMAGE:latest
 
@@ -50,40 +48,59 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
           chmod 600 private_key.pem
 
+      # 멀티라인 yml을 안전하게 넘기기 위해 base64 인코딩
+      - name: Prepare base64 of application ymls
+        id: ymlb64
+        shell: bash
+        run: |
+          # -w0: 한 줄로 인코딩 (ubuntu 기본 이미지 지원)
+          printf "%s" "${{ secrets.APPLICATION_PROD_YML }}"   | base64 -w0 > prod.b64
+          printf "%s" "${{ secrets.APPLICATION_SECRET_YML }}" | base64 -w0 > secret.b64
+          echo "prod_b64=$(cat prod.b64)"     >> "$GITHUB_OUTPUT"
+          echo "secret_b64=$(cat secret.b64)" >> "$GITHUB_OUTPUT"
+
       - name: Deploy to EC2
         env:
           IMAGE_TAG: ${{ needs.build_and_push.outputs.image_tag }}
+          PROD_YML_B64: ${{ steps.ymlb64.outputs.prod_b64 }}
+          SECRET_YML_B64: ${{ steps.ymlb64.outputs.secret_b64 }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-west-2
         run: |
-          echo "[1/6] EC2 접속 시작..."
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ec2-user@${{ secrets.EC2_HOST }} << EOF
             set -e
             echo "✅ EC2 접속 성공"
 
+            # awscli 없으면 설치 (Amazon Linux / Ubuntu 둘 다 시도)
+            if ! command -v aws >/dev/null 2>&1; then
+              (sudo yum -y install awscli || (sudo apt-get update && sudo apt-get -y install awscli)) || true
+            fi
+
             export AWS_ACCESS_KEY_ID='${AWS_ACCESS_KEY_ID}'
             export AWS_SECRET_ACCESS_KEY='${AWS_SECRET_ACCESS_KEY}'
-            export AWS_DEFAULT_REGION='${AWS_DEFAULT_REGION}'
+            export AWS_DEFAULT_REGION='us-west-2'
             export IMAGE_TAG='${IMAGE_TAG}'
 
+            mkdir -p /opt/bridgeon/config
             cd /opt/bridgeon
 
-            # (중요) yml은 base64로 전달/복원하면 개행이 깨지지 않습니다.
-            echo "${APPLICATION_PROD_YML_B64}"   | base64 -d > /opt/bridgeon/config/application-prod.yml
-            echo "${APPLICATION_SECRET_YML_B64}" | base64 -d > /opt/bridgeon/config/application-secret.yml
+            # yml 복원 (개행 손상 방지용)
+            echo '${PROD_YML_B64}'   | base64 -d > /opt/bridgeon/config/application-prod.yml
+            echo '${SECRET_YML_B64}' | base64 -d > /opt/bridgeon/config/application-secret.yml
 
-            echo "[3/6] ECR 로그인 & 이미지 Pull..."
-            aws ecr get-login-password --region $AWS_DEFAULT_REGION \
-              | docker login --username AWS --password-stdin 590184104064.dkr.ecr.us-west-2.amazonaws.com
-            IMAGE_TAG=$IMAGE_TAG docker compose pull
+            echo "[ECR 로그인]"
+            aws ecr get-login-password --region \$AWS_DEFAULT_REGION \
+              | docker login --username AWS --password-stdin 590184104064.dkr.ecr.\$AWS_DEFAULT_REGION.amazonaws.com
 
-            echo "[4/6] 기존 컨테이너 종료..."
-            docker compose down
+            echo "[이미지 Pull]"
+            IMAGE_TAG=\$IMAGE_TAG docker compose pull
 
-            echo "[5/6] 새 컨테이너 실행..."
-            IMAGE_TAG=$IMAGE_TAG docker compose up -d --remove-orphans
+            echo "[기존 컨테이너 down]"
+            docker compose down || true
 
-            echo "[6/6] 현재 실행 중인 컨테이너:"
+            echo "[새 컨테이너 up]"
+            IMAGE_TAG=\$IMAGE_TAG docker compose up -d --remove-orphans
+
+            echo "[실행 중 컨테이너]"
             docker ps --format "table {{.Image}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}"
           EOF
