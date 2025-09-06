@@ -9,7 +9,9 @@ import com.bridgeon.app.global.web.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,8 +24,9 @@ public class AuthController {
     private final JwtProperties jwtProperties;
 
     @GetMapping("/login")
-    public ResponseDto<?> kakaoSignIn(
+    public ResponseEntity<Void> kakaoSignIn(
             @RequestParam String code,
+            @RequestParam(required = false) String next,
             HttpServletResponse response,
             HttpServletRequest request
     ) {
@@ -48,10 +51,16 @@ public class AuthController {
         response.addHeader("Set-Cookie", c1);
         response.addHeader("Set-Cookie", c2);
 
-        return ResponseDto.success(
-                HttpStatus.OK,
-                "로그인 성공"
-        );
+        String frontendBaseUrl = "http:localhost:5173";
+        String target = frontendBaseUrl + (next != null && next.startsWith("/") ? next : "/onboarding");
+
+        return ResponseEntity.status(302)
+                .header(HttpHeaders.LOCATION, target)
+                .build();
+//        return ResponseDto.success(
+//                HttpStatus.OK,
+//                "로그인 성공"
+//        );
     }
 
 
