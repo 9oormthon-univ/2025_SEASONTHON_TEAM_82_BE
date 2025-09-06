@@ -62,45 +62,29 @@ jobs:
       - name: Deploy to EC2
         env:
           IMAGE_TAG: ${{ needs.build_and_push.outputs.image_tag }}
-          PROD_YML_B64: ${{ steps.ymlb64.outputs.prod_b64 }}
-          SECRET_YML_B64: ${{ steps.ymlb64.outputs.secret_b64 }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-west-2
+          APPLICATION_PROD_YML_B64: ${{ secrets.APPLICATION_PROD_YML_B64 }}
+          APPLICATION_SECRET_YML_B64: ${{ secrets.APPLICATION_SECRET_YML_B64 }}
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key.pem ec2-user@${{ secrets.EC2_HOST }} << EOF
             set -e
-            echo "✅ EC2 접속 성공"
-
-            # awscli 없으면 설치 (Amazon Linux / Ubuntu 둘 다 시도)
-            if ! command -v aws >/dev/null 2>&1; then
-              (sudo yum -y install awscli || (sudo apt-get update && sudo apt-get -y install awscli)) || true
-            fi
-
             export AWS_ACCESS_KEY_ID='${AWS_ACCESS_KEY_ID}'
             export AWS_SECRET_ACCESS_KEY='${AWS_SECRET_ACCESS_KEY}'
-            export AWS_DEFAULT_REGION='us-west-2'
+            export AWS_DEFAULT_REGION='${AWS_DEFAULT_REGION}'
             export IMAGE_TAG='${IMAGE_TAG}'
 
-            mkdir -p /opt/bridgeon/config
             cd /opt/bridgeon
+            echo "\$APPLICATION_PROD_YML_B64"   | base64 -d > /opt/bridgeon/config/application-prod.yml
+            echo "\$APPLICATION_SECRET_YML_B64" | base64 -d > /opt/bridgeon/config/application-secret.yml
 
-            # yml 복원 (개행 손상 방지용)
-            echo '${PROD_YML_B64}'   | base64 -d > /opt/bridgeon/config/application-prod.yml
-            echo '${SECRET_YML_B64}' | base64 -d > /opt/bridgeon/config/application-secret.yml
-
-            echo "[ECR 로그인]"
             aws ecr get-login-password --region \$AWS_DEFAULT_REGION \
-              | docker login --username AWS --password-stdin 590184104064.dkr.ecr.\$AWS_DEFAULT_REGION.amazonaws.com
+              | docker login --username AWS --password-stdin 590184104064.dkr.ecr.us-west-2.amazonaws.com
 
-            echo "[이미지 Pull]"
             IMAGE_TAG=\$IMAGE_TAG docker compose pull
-
-            echo "[기존 컨테이너 down]"
-            docker compose down || true
-
-            echo "[새 컨테이너 up]"
+            docker compose down
             IMAGE_TAG=\$IMAGE_TAG docker compose up -d --remove-orphans
 
-            echo "[실행 중 컨테이너]"
-            docker ps --format "table {{.Image}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}"
+            docker ps --format "table {{.Image}}\t{{.Names}}\t{{.Status}}"
           EOF
