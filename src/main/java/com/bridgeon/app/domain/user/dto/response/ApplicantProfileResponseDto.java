@@ -12,9 +12,10 @@ public record ApplicantProfileResponseDto(
         String region,
         String interestField,
         String introduction,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String profileImageUrl
 ) {
-    public static ApplicantProfileResponseDto of(User u) {
+    public static ApplicantProfileResponseDto of(User u, String profileImageUrl) {
         return new ApplicantProfileResponseDto(
                 u.getId(),
                 u.getName(),
@@ -23,7 +24,8 @@ public record ApplicantProfileResponseDto(
                 u.getRegion().name(),
                 u.getInterestField().name(),
                 u.getIntroduction(),
-                u.getCreatedAt()
+                u.getCreatedAt(),
+                profileImageUrl
         );
     }
 }
